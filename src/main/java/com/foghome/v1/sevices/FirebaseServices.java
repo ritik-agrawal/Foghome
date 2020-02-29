@@ -1,9 +1,6 @@
 package com.foghome.v1.sevices;
 
-import com.foghome.v1.represents.Login;
-import com.foghome.v1.represents.Loginfo;
-import com.foghome.v1.represents.Response;
-import com.foghome.v1.represents.User;
+import com.foghome.v1.represents.*;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -14,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -64,5 +62,17 @@ public class FirebaseServices {
             return new Response(null,"success",listHomes);
         }
         return new Response(null,userId+" does not exists.",null);
+    }
+
+    public Response addHome(Home home, String userId){
+        Firestore db=FirestoreClient.getFirestore();
+        ArrayList<String> list=new ArrayList<>();
+        list.add(home.getHomeName());
+        HashMap<String,ArrayList<String>> addedHomes=new HashMap<String, ArrayList<String>>();
+        ApiFuture<WriteResult> homes=db.collection("users").document(userId).collection("homes")
+                .document(home.getHomeName()).set(home);
+        addedHomes.put("Homes",list);
+        ApiFuture<WriteResult> userHomesList=db.collection("users").document(userId).set(addedHomes);
+        return new Response(null,"Successfully created home"+home.getHomeName(),list);
     }
 }

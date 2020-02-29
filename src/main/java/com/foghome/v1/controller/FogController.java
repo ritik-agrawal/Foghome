@@ -1,5 +1,6 @@
 package com.foghome.v1.controller;
 
+import com.foghome.v1.represents.Home;
 import com.foghome.v1.represents.Login;
 import com.foghome.v1.represents.Response;
 import com.foghome.v1.represents.User;
@@ -29,6 +30,11 @@ public class FogController {
         return firebaseServices.loginUser(login);
     }
 
+    @PostMapping("/{userId}/homes/addHome")
+    public Response createHome(@RequestBody Home home, @PathVariable String userId){
+        Log.info("UserID("+userId+") adding home:"+home.getHomeName());
+        return firebaseServices.addHome(home, userId);
+    }
     @GetMapping("/{userId}/homes")
     public Response listHomes(@PathVariable String userId) throws ExecutionException, InterruptedException {
         Log.info("Getting homes of userId:"+userId);
