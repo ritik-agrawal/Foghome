@@ -5,10 +5,10 @@ import java.util.HashMap;
 
 public class Home {
     private String homeName;
-    private HashMap<String,String> user;
+    private ArrayList<HashMap<String,String>>  user;
     private ArrayList<HashMap<String,Boolean>> moniter;
 
-    public Home(String homeName, HashMap<String, String> user, ArrayList<HashMap<String, Boolean>> moniter) {
+    public Home(String homeName, ArrayList<HashMap<String,String>> user, ArrayList<HashMap<String, Boolean>> moniter) {
         this.homeName = homeName;
         this.user = user;
         this.moniter = moniter;
@@ -25,11 +25,11 @@ public class Home {
         this.homeName = homeName;
     }
 
-    public HashMap<String, String> getUser() {
+    public ArrayList<HashMap<String,String>> getUser() {
         return user;
     }
 
-    public void setUser(HashMap<String, String> user) {
+    public void setUser(ArrayList<HashMap<String,String>> user) {
         this.user = user;
     }
 

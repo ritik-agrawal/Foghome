@@ -2,10 +2,7 @@ package com.foghome.v1.sevices;
 
 import com.foghome.v1.represents.*;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -19,6 +16,15 @@ public class FirebaseServices {
 
     private static Logger Log=Logger.getLogger(FirebaseServices.class);
 
+    public Boolean ifExsits(DocumentReference docRef) throws ExecutionException, InterruptedException {
+        ApiFuture<DocumentSnapshot> future=docRef.get();
+        DocumentSnapshot doc= future.get();
+        if (doc.exists())
+            return true;
+        else
+            return false;
+    }
+
     public void addUser(User user){
         Firestore db= FirestoreClient.getFirestore();
         user.setUserId();
@@ -31,12 +37,13 @@ public class FirebaseServices {
 
     public Response loginUser(Login login) throws ExecutionException, InterruptedException {
         Firestore db=FirestoreClient.getFirestore();
-        ApiFuture<DocumentSnapshot> loginFuture=db.collection("loginfo").document(login.getUserName()).get();
-        DocumentSnapshot loginDoc=loginFuture.get();
-        if (loginDoc.exists()){
-            String actualPass= (String) loginDoc.get("password");
+        DocumentReference documentReference=db.collection("loginfo").document(login.getUserName());
+        if (ifExsits(documentReference)){
+            ApiFuture<DocumentSnapshot> future=documentReference.get();
+            DocumentSnapshot loginDoc=future.get();
+            String actualPass=loginDoc.getString("password");
             String givenPass=login.getPassword();
-            if (actualPass.equals(givenPass)) {
+            if (givenPass.equals(actualPass)){
                 Log.info(login.getUserName() + " has succeccfully logged in.");
                 return new Response(loginDoc.getString("userId"),
                         login.getUserName() + " has succeccfully logged in.",null);
@@ -74,5 +81,27 @@ public class FirebaseServices {
         addedHomes.put("Homes",list);
         ApiFuture<WriteResult> userHomesList=db.collection("users").document(userId).set(addedHomes);
         return new Response(null,"Successfully created home"+home.getHomeName(),list);
+    }
+
+    public Response grantAccessTo(GrantAccess grantAccess, String userId, String homeId) throws ExecutionException, InterruptedException {
+        Firestore db=FirestoreClient.getFirestore();
+        DocumentReference grantUser=db.collection("users").document(grantAccess.getUserId());
+        HashMap<String,String> update=new HashMap<>();
+        update.put(grantAccess.getUserName(),grantAccess.getUserId());
+        if (ifExsits(grantUser)){
+            Log.info("updating homes user access array");
+            ApiFuture<WriteResult> arrayUserUpdate=db.collection("users").document(userId)
+                    .collection("homes").document(homeId).update("user", FieldValue.arrayUnion(update));
+            Log.info("adding home name to grant users Homes array");
+            ApiFuture<WriteResult> arrayHomesUpdate=db.collection("users").document(grantAccess.getUserId())
+                    .update("Homes", FieldValue.arrayUnion(homeId));
+            ApiFuture<DocumentSnapshot> grantHome=db.collection("users").document(userId)
+                    .collection("homes").document(homeId).get();
+            DocumentSnapshot grantHomeDoc=grantHome.get();
+            ApiFuture<WriteResult> addGrantHome=db.collection("users").document(grantAccess.getUserId())
+                    .collection("homes").document(homeId).set(grantHomeDoc.getData());
+            return new Response(null, grantAccess.getUserName()+" has been given access to home "+homeId,null);
+        }
+        return new Response(null,grantAccess.getUserId()+" does not exists.",null);
     }
 }
