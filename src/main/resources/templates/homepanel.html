@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>FogHome: HomesList</title>
+</head>
+<body>
+<label th:text="${login.userName}">User</label>
+<table >
+    <th th:each="home : ${list}">
+        <tr>
+            <td th:text="${home}">home</td>
+        </tr>
+    </th>
+</table>
+
+<a th:href="@{/addHome}">Create Home</a>
+<a th:href="@{/grantAccess}">Grant Access</a>
+
+</body>
+</html>

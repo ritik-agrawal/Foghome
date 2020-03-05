@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.crg">
+<head>
+    <meta charset="UTF-8">
+    <title>FogHome: Login</title>
+</head>
+<body>
+<h3>Login</h3>
+<form th:action="@{/login}" th:object="${login}" method="post">
+    <label for="userName">Username:</label>
+    <input type="text" id="userName" name="userName"><br/>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password"><br/>
+
+    <input type="submit" value="Login"><br/>
+    <p th:if="${error}" class="error" th:text="${response.status}">status</p>
+</form>
+
+</body>
+</html>

@@ -46,7 +46,7 @@ public class FirebaseServices {
             if (givenPass.equals(actualPass)){
                 Log.info(login.getUserName() + " has succeccfully logged in.");
                 return new Response(loginDoc.getString("userId"),
-                        login.getUserName() + " has succeccfully logged in.",null);
+                        login.getUserName() + " has succeccfully logged in.", (ArrayList<String>) loginDoc.get("Homes"));
             }
             else {
                 Log.error("Wrong Password.");
